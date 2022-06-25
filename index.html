@@ -1,44 +1,73 @@
-<!DOCTYPE html>
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <title>TextAlive App API | basic example</title>
-    <link rel="stylesheet" href="./css/index.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="index.css" />
   </head>
-  <body>
-    <div id="overlay"><button class="play" disabled>再生</button></div>
-    <div id="container">
-      <div>
-        <p id="lyrics">
-          <span id="text"></span>
-        </p>
-      </div>
-    </div>
+  <body>        
+    <!-- Playerクラスのオプション、mediaElementのため -->
     <div id="media"></div>
-    <div id="header">
-      <div id="meta">
-        <div id="artist"><strong>artist:</strong> <span>-</span></div>
-        <div id="song"><strong>song:</strong> <span>-</span></div>
-      </div>
-      <ul>
-        <li>発声中の歌詞テキストがあれば表示されます</li>
-        <li>
-          <a>TextAlive ホストの有無</a>により再生コントロールの表示状態が切り替わります
-        </li>
-      </ul>
-    </div>
-    <div id="footer">
-      <p>
-        <span id="position"><strong>-</strong> [ms]</span>
-      </p>
-      <div id="control" style="display: none">
-        <button class="play" disabled>再生</button>
-        <button id="jump" disabled>歌詞頭出し</button>
-        <button id="pause" disabled>一時停止</button>
-        <button id="rewind" disabled>巻き戻し</button>
-      </div>
-    </div>
-    <script src="./js/index.js"></script>
+    イベントリスナの状態<br>
+    onAppReady:<span id="onAppReady"></span><br>
+    onVideoReady:<span id="onVideoReady"></span><br>
+    <br><br>
+
+    楽曲情報<br>
+    楽曲名　　　　：<span id="song_name"></span><br>
+    アーティスト名：<span id="song_artist"></span><br>
+    リンク　　　　：<span id="song_permalink"></span><br>
+    <br>
+    
+    歌詞は以下に表示(animation関数を割り当てる)<br>
+    フレーズ：<span id="text_phrase"></span><br>
+    単語　　：<span id="text_word"></span><br>
+    文字　　：<span id="text_char"></span><br>
+    <br>
+
+    現在の位置[ms]<br>
+    位置：<span id="position"></span><br>
+    <br>
+
+    ビートの情報<br>
+    index：<span id="beat_index"></span><br>
+    duration[ms]：<span id="beat_duration"></span><br>
+    <br>
+    
+    コード進行の情報<br>
+    index：<span id="chord_index"></span><br>
+    duration[ms]：<span id="chord_duration"></span><br>
+    <br>
+    
+    コーラスの情報<br>
+    index：<span id="chorus_index"></span><br>
+    duration[ms]：<span id="chorus_duration"></span><br>
+    <br>
+    
+    楽曲のV/A空間<br>
+    V：<span id="VA_V"></span><br>
+    A：<span id="VA_A"></span><br>
+    <br>
+    
+
+    声量の情報<br>
+    volume：<span id="volume"></span><br>
+    <br>
+
+    フレーズの情報<br>
+    phrase：<span id="phrase"></span><br>
+    <br>
+    
+    単語の情報<br>
+    word：<span id="word"></span><br>
+    <br>
+    
+    文字の情報<br>
+    char：<span id="char"></span><br>
+    <br>
+    <hr>
+    サビの情報（onVideoReadyの直後）<br>
+    segments :<span id="segments"></span><br>
+
+    <script src="./index.js"></script>
   </body>
 </html>

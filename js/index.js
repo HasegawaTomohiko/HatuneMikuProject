@@ -7,7 +7,7 @@ const player = new Player({
 
 	// アプリの情報を指定する。
 	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/playerappoptions.html
-	app: {token: "dh3p2Q535YE5AZXR"},
+	app: {token: "XF6d7XV9QlrIvI5W"},
 	
 	// 読み込むフォントを指定する。nullだとすべて読み込む。
 	//fontFamilies: null,

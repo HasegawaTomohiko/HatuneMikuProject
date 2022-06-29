@@ -1,187 +1,186 @@
-import { Player, IRepetitiveSegments } from "textalive-app-api";
+const {Palyer} = TextAliveApp;
 
-/////////////////////// TextAlive Player を作る ///////////////////////
-// optionに関するリファレンスは以下。
-// https://developer.textalive.jp/packages/textalive-app-api/interfaces/playeroptions.html
-const player = new Player({
+const player = new Palyer({
 
-	// アプリの情報を指定する。
-	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/playerappoptions.html
-	app: {token: "dh3p2Q535YE5AZXR"},
-	
-	// 読み込むフォントを指定する。nullだとすべて読み込む。
-	//fontFamilies: null,
-
-	// 歌詞テキストを読み込むタイムアウト時刻を指定。0だとタイムアウトしない。
-	// ※0を指定すると、歌詞のanimationへの関数代入がうまくいかない。（2021/08/10）
-	//lyricsFetchTimeout: 0,
-
-	// 音源メディアの情報を表示する位置を指定する。座標指定ではない。でもすげぇ。
-	// https://developer.textalive.jp/packages/textalive-app-api/globals.html#playerbannerposition
-	mediaBannerPosition: "buttom right",
-
-	// 音源メディアを指定する。
-	mediaElement: document.querySelector("#media"),
-
-	// throttleアップデート関数の発行間隔をしていする。ミリセカンド。
-	//throttleInterval: 10,
-
-	// TextAlive Playerの音源の再生状態を管理するTimerインスタンス。よくわからん。。。
-	//timer: ,
-
-	// V/A空間の座標値を取得するか否か。
-	// V/A空間について：https://ipsj.ixsq.nii.ac.jp/ej/?action=repository_uri&item_id=142056&file_id=1&file_no=1
-	// V/A空間は、ある時刻の音源に対する感情の指標である。VはValance(怪ー不快)、Activation(活性ー日活性)の二軸で表される。例えば、喜びは二軸ともに正。
-	valenceArousalEnabled: true,
-
-	// 声量情報を取得するかどうか。
-	vocalAmplitudeEnabled: true,
-
+  app: {token: "dh3p2Q535YE5AZXR"},
+  mediaElement: document.querySelector("#media"),
+  mediaBannerPosition: "bottom right"
 });
 
-/////////////////////// イベントリスナを登録する /////////////////////// 
-// 3種類のイベントリスナから指定する。PlayerEventListener, PlyaerAppListener, LoaderListener
-// 指定したイベントリスナは、必ずoverrideして定義しなければならない。
-// https://developer.textalive.jp/packages/textalive-app-api/globals.html#playerlistener
+const overlay = document.querySelector("#overlay");
+const bar = document.querySelector("#bar");
+const textContainer = document.querySelector("#text");
+const seekbar = document.querySelector("#seekbar");
+const paintedSeekbar = seekbar.querySelector("div");
+
+let b,c;
+
 player.addListener({
-	// PlayerEventListenerのイベントリスナ
-	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/playereventlistener.html
-	//onDispose, 				// プレイヤーが破棄されるとき
-	//onMediaElementSet,	 	// 音源メディアが変更されたとき(配属先のDOM要素が変更されたとき)
-	//onMediaSeek,			// 再生中の楽曲の再生位置が変更されたとき
-	//onPause,				// 再生中の楽曲が一時停止されたとき
-	//onPlay,					// 楽曲の再生が始まったとき
-	//onResize,				// ステージサイズが変更されたとき（ステージってなに？2021/08/10）
-	//onSeek,					// 再生中の楽曲の再生位置がユーザーによって変更されたとき
-	//onStop,					// 再生中の楽曲が一時停止されたとき
-	//onThrottledTimeUpdate,	// 動画の再生位置が変更されたときに呼ばれる（あまりに頻繁な発火を防ぐため一定間隔に間引かれる）、間隔時間はPlayerクラスのオプションで設定可能。
-	onTimeUpdate,			// 動画の再生位置が変更されたときに呼ばれる
-	//onTimerReady,			// 動画のためのTimerの準備が整ったとき
-	onVideoReady,			// 動画オブジェクトの準備が整ったとき
-	//onVideoSeek,			// 動画のシーク操作が行われたとき
-	//onVideoSeekEnd,			// 動画のシーク操作が終わったとき
-	//onVideoSeekStart,		// 動画のシーク操作が始まったとき
-	//onVolumeUpdate,			// 音量が変更されたとき
+  onAppReady(app){
+    if(app.managed){
+      document.querySelector("#control").className = "disabled";
+    }
+    if(!app.songUrl){
+      document.querySelector("#media").className = "disabled";
+      player.createFromSongUrl("https://piapro.jp/t/RoPB");
+    }
+  },
+  onAppMediaChange(){
+    overlay.className = "";
+    bar.className = "";
+    resetChars();
+  },
+  onVideoReady(video) {
+    document.querySelector("#artist span").textContent = player.data.song.artist.name;
+    document.querySelector("#song span").textContent = player.data.song.name;
+    c = null;
+  },
+  onTimerReady() {
+    overlay.className = "disabled";
+    document.querySelector("#control > a#play").className = "";
+    document.querySelector("#control > a#stop").className = "";
+  },
+  onTimeUpdate(position) {
+    // シークバーの表示を更新
+    paintedSeekbar.style.width = `${
+      parseInt((position * 1000) / player.video.duration) / 10
+    }%`;
 
-	// PlayerAppListenerのイベントリスナ
-	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/playerapplistener.html
-	//onAppConnected, 		// TextAliveAppAPIサーバとの接続時に呼ばれる
-	//onAppMediaChange,		// 再生すべき楽曲URLが変更されたとき
-	//onAppParameterUpdate,	// TextAliveアプリのパラメタが変更されたときに呼ばれる
-	onAppReady,				// TextAliveホストとの接続時に呼ばれる
-	
-	// LoaderListenerのイベントリスナ。このリスナは、DataLoaderListenerの中で、さらに4つに分かれる。
-	// DataLoaderListener -> VideoLoaderListener, SongLoaderListener, TextLoaderListener, FontLoaderListener
-	// ↓ LoaderListenerのリファレンス
-	// https://developer.textalive.jp/packages/textalive-app-api/globals.html#loaderlistener
-	// ↓ VideoLoaderListenerのリファレンス
-	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/videoloaderlistener.html
-	// ↓ SongLoaderListenerのリファレンス
-	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/songloaderlistener.html
-	// ↓ TextLoaderListenerのリファレンス
-	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/textloaderlistener.html
-	// ↓ FontLoaderListenerのリファレンス
-	// https://developer.textalive.jp/packages/textalive-app-api/interfaces/fontloaderlistener.html
-	//onVideoLoad, 			// 動画データが読み込まれたとき
-	//onSongInfoLoad,			// 楽曲の詳細情報が読み込まれたとき
-	//onSongLoad,				// 楽曲の基本情報が読み込まれたとき
-	//onSongMapLoad,			// 楽曲地図が読み込まれたとき
-	//onValenceArousalLoad,	// V/A空間が読み込まれたとき
-	//onVocalAmplitudeLoad,	// 声量の情報が読み込まれたとき
-	//onLyricsLoad,			// 歌詞テキストの発生タイミング情報が読み込まれたとき
-	//onTextLoad,				// 歌詞テキストが読み込まれたとき
-	//onFontsLoad,			// フォントが読み込まれたとき
+    // 現在のビート情報を取得
+    let beat = player.findBeat(position);
+    if (b !== beat) {
+      if (beat) {
+        requestAnimationFrame(() => {
+          bar.className = "active";
+          requestAnimationFrame(() => {
+            bar.className = "active beat";
+          });
+        });
+      }
+      b = beat;
+    }
 
+    // 歌詞情報がなければこれで処理を終わる
+    if (!player.video.firstChar) {
+      return;
+    }
+
+    // 巻き戻っていたら歌詞表示をリセットする
+    if (c && c.startTime > position + 1000) {
+      resetChars();
+    }
+
+    // 500ms先に発声される文字を取得
+    let current = c || player.video.firstChar;
+    while (current && current.startTime < position + 500) {
+      // 新しい文字が発声されようとしている
+      if (c !== current) {
+        newChar(current);
+        c = current;
+      }
+      current = current.next;
+    }
+  },onPlay() {
+    const a = document.querySelector("#control > a#play");
+    while (a.firstChild) a.removeChild(a.firstChild);
+    a.appendChild(document.createTextNode("\uf28b"));
+  },
+
+  /* 楽曲の再生が止まったら呼ばれる */
+  onPause() {
+    const a = document.querySelector("#control > a#play");
+    while (a.firstChild) a.removeChild(a.firstChild);
+    a.appendChild(document.createTextNode("\uf144"));
+  }
 });
 
-// アニメーション関数の定義、フレーズ、単語、文字
-// フレーズが発声されていたら #text_phrase に表示する
-const animatePhrase = function (now, unit) {
-	if (unit.contains(now)) {
-		document.querySelector("#text_phrase").textContent = unit.text;
-	}
-};
+/* 再生・一時停止ボタン */
+document.querySelector("#control > a#play").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (player) {
+    if (player.isPlaying) {
+      player.requestPause();
+    } else {
+      player.requestPlay();
+    }
+  }
+  return false;
+});
 
-// 単語が発声されていたら #text_word に表示する
-const animateWord = function (now, unit) {
-	if (unit.contains(now)) {
-		document.querySelector("#text_word").textContent = unit.text;
-	}
-};
+/* 停止ボタン */
+document.querySelector("#control > a#stop").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (player) {
+    player.requestStop();
 
-// 文字が発声されていたら #text_char に表示する
-const animateChar = function (now, unit) {
-	if (unit.contains(now)) {
-		document.querySelector("#text_char").textContent = unit.text;
-	}
-};
+    // 再生を停止したら画面表示をリセットする
+    bar.className = "";
+    resetChars();
+  }
+  return false;
+});
 
-// TextAlive ホストとの接続時に呼ばれる
-// 楽曲を読み込む。
-// 楽曲：その心に灯る色は / ラテルネさん（https://www.youtube.com/watch?v=bMtYf3R0zhY）。神曲。
-function onAppReady(app){
-	player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
-	//player.createFromSongUrl("https://www.youtube.com/watch?v=ygY2qObZv24");
-	document.querySelector("#onAppReady").textContent = "準備完了";
+/* シークバー */
+seekbar.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (player) {
+    player.requestMediaSeek(
+      (player.video.duration * e.offsetX) / seekbar.clientWidth
+    );
+  }
+  return false;
+});
+
+/**
+ * 新しい文字の発声時に呼ばれる
+ * Called when a new character is being vocalized
+ */
+function newChar(current) {
+  // 品詞 (part-of-speech)
+  // https://developer.textalive.jp/packages/textalive-app-api/interfaces/iword.html#pos
+  const classes = [];
+  if (
+    current.parent.pos === "N" ||
+    current.parent.pos === "PN" ||
+    current.parent.pos === "X"
+  ) {
+    classes.push("noun");
+  }
+
+  // フレーズの最後の文字か否か
+  if (current.parent.parent.lastChar === current) {
+    classes.push("lastChar");
+  }
+
+  // 英単語の最初か最後の文字か否か
+  if (current.parent.language === "en") {
+    if (current.parent.lastChar === current) {
+      classes.push("lastCharInEnglishWord");
+    } else if (current.parent.firstChar === current) {
+      classes.push("firstCharInEnglishWord");
+    }
+  }
+
+  // noun, lastChar クラスを必要に応じて追加
+  const div = document.createElement("div");
+  div.appendChild(document.createTextNode(current.text));
+
+  // 文字を画面上に追加
+  const container = document.createElement("div");
+  container.className = classes.join(" ");
+  container.appendChild(div);
+  container.addEventListener("click", () => {
+    player.requestMediaSeek(current.startTime);
+  });
+  textContainer.appendChild(container);
 }
 
-// 動画データが読み込まれたとき
-// 楽曲情報を表示する。アニメーション関数を割り当てる。
-function onVideoReady(v){
-
-	// サビ情報を読み取る
-	var segments_contenst = "";
-	// for文でarrayをすべてたどる
-	// https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Statements/for...of
-	for(const element of player.data.songMap.segments){
-		segments_contenst = segments_contenst + String(element.chorus) + "(" + String(element.duration) + " [ms]), ";
-	}
-
-	document.querySelector("#segments").textContent = segments_contenst;
-
-	document.querySelector("#song_name").textContent = player.data.song.name;
-	document.querySelector("#song_permalink").textContent = player.data.song.permalink;
-	document.querySelector("#song_artist").textContent = player.data.song.artist.name;
-
-	// 定期的に呼ばれる各フレーズの "animate" 関数をセットする
-	let w;
-	// Set "animate" function
-  	w = player.video.firstPhrase;
-  	while (w) {
-    	w.animate = animatePhrase;
-    	w = w.next;
-  	}
-	// 定期的に呼ばれる各単語の "animate" 関数をセットする
-  	// Set "animate" function
-  	w = player.video.firstWord;
-  	while (w) {
-    	w.animate = animateWord;
-    	w = w.next;
-  	}
-	// 定期的に呼ばれる各文字の "animate" 関数をセットする
-  	// Set "animate" function
-  	w = player.video.firstChar;
-  	while (w) {
-    	w.animate = animateChar;
-    	w = w.next;
-  	}
-	document.querySelector("#onVideoReady").textContent = "準備完了";
-}
-
-// 楽曲の再生位置が更新されたときに呼び出される。（再生中常に呼び出される）
-// index.htmlの各変数を随時更新する。
-function onTimeUpdate(position){
-	document.querySelector("#position").textContent = position;
-	document.querySelector("#beat_index").textContent = player.findBeat(position).index;
-	document.querySelector("#beat_duration").textContent = player.findBeat(position).duration;
-	document.querySelector("#chord_index").textContent = player.findChord(position).index;
-	document.querySelector("#chord_duration").textContent = player.findChord(position).duration;
-	document.querySelector("#chorus_index").textContent = player.findChorus(position).index;
-	document.querySelector("#chorus_duration").textContent = player.findChorus(position).duration;
-	document.querySelector("#VA_A").textContent = player.getValenceArousal(position).a;
-	document.querySelector("#VA_V").textContent = player.getValenceArousal(position).v;
-	document.querySelector("#volume").textContent = player.getVocalAmplitude(position);
-	document.querySelector("#phrase").textContent = player.video.findPhrase(position).text;
-	document.querySelector("#word").textContent = player.video.findWord(position).text;
-	document.querySelector("#char").textContent = player.video.findChar(position).text;
+/**
+ * 歌詞表示をリセットする
+ * Reset lyrics view
+ */
+function resetChars() {
+  c = null;
+  while (textContainer.firstChild)
+    textContainer.removeChild(textContainer.firstChild);
 }

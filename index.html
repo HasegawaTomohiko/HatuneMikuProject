@@ -3,71 +3,42 @@
     <title>TextAlive App API | basic example</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/textalive-app-api/dist/index.js"></script>
-    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="./css/index.css" />
   </head>
-  <body>        
-    <!-- Playerクラスのオプション、mediaElementのため -->
+  <body><!-- オーバーレイ / Overlay -->
+    <div id="overlay">
+      <p><span class="far">&#xf254;</span>now loading...</p>
+    </div>
+    
+    <!-- ヘッダ / Header -->
+    <div id="header">
+      <!-- 再生コントロール / Playback control -->
+      <div id="control" class="far">
+        <a href="#" id="play" class="disabled">&#xf144;</a>
+        <a href="#" id="stop" class="disabled">&#xf28d;</a>
+      </div>
+      <!-- アーティストと楽曲の情報 / Artist and song info -->
+      <div id="meta">
+        <div id="artist">artist: <span>-</span></div>
+        <div id="song">song: <span>-</span></div>
+      </div>
+    </div>
+    
+    <!-- 音源 / Audio souce -->
     <div id="media"></div>
-    イベントリスナの状態<br>
-    onAppReady:<span id="onAppReady"></span><br>
-    onVideoReady:<span id="onVideoReady"></span><br>
-    <br><br>
-
-    楽曲情報<br>
-    楽曲名　　　　：<span id="song_name"></span><br>
-    アーティスト名：<span id="song_artist"></span><br>
-    リンク　　　　：<span id="song_permalink"></span><br>
-    <br>
     
-    歌詞は以下に表示(animation関数を割り当てる)<br>
-    フレーズ：<span id="text_phrase"></span><br>
-    単語　　：<span id="text_word"></span><br>
-    文字　　：<span id="text_char"></span><br>
-    <br>
-
-    現在の位置[ms]<br>
-    位置：<span id="position"></span><br>
-    <br>
-
-    ビートの情報<br>
-    index：<span id="beat_index"></span><br>
-    duration[ms]：<span id="beat_duration"></span><br>
-    <br>
+    <!-- 歌詞 / Lyrics text -->
+    <div id="lyrics">
+      <!-- 文字 / Text -->
+      <div id="text"></div>
+      <!-- ビートバー / Beat bar -->
+      <div id="bar"></div>
+    </div>
     
-    コード進行の情報<br>
-    index：<span id="chord_index"></span><br>
-    duration[ms]：<span id="chord_duration"></span><br>
-    <br>
-    
-    コーラスの情報<br>
-    index：<span id="chorus_index"></span><br>
-    duration[ms]：<span id="chorus_duration"></span><br>
-    <br>
-    
-    楽曲のV/A空間<br>
-    V：<span id="VA_V"></span><br>
-    A：<span id="VA_A"></span><br>
-    <br>
-    
-
-    声量の情報<br>
-    volume：<span id="volume"></span><br>
-    <br>
-
-    フレーズの情報<br>
-    phrase：<span id="phrase"></span><br>
-    <br>
-    
-    単語の情報<br>
-    word：<span id="word"></span><br>
-    <br>
-    
-    文字の情報<br>
-    char：<span id="char"></span><br>
-    <br>
-    <hr>
-    サビの情報（onVideoReadyの直後）<br>
-    segments :<span id="segments"></span><br>
+    <!-- シークバー -->
+    <div id="seekbar">
+      <div></div>
+    </div>
     <script src="./js/index.js"></script>
   </body>
 </html>

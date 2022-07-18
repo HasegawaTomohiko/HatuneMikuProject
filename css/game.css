@@ -1,0 +1,28 @@
+*{
+  color:white;
+}
+
+div#content{
+  width:800px;
+  height:500px;
+  background-color: black;
+}
+
+div#wrap{
+  background-color: black;
+  width:800px;
+  height:500px;
+}
+
+.fadeout{
+  animation: fadeOut 1.5s ease-out forwards;
+}
+
+@keyframes fadeOut{
+  0%{
+    opacity: 1;
+  }
+  100%{
+    opacity: 0;
+  }
+}
